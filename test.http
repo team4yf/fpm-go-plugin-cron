@@ -1,0 +1,41 @@
+@api = http://localhost:9090
+
+@code = demo
+
+### execute once
+POST {{api}}/biz/job/add
+Authorization: Basic admin 123456
+Content-Type: application/json
+
+{
+    "cron": "* * * * *",
+    "code": "{{code}}",
+    "retryMax": 5,
+    "name": "{{code}}",
+    "title":"{{code}}",
+    "remark": "{{code}}",
+    "url": "foo.bar",
+    "timeout": 600,
+    "delay": 10,
+    "status": 1,
+    "executeType": "INTERNAL",
+    "auth":"basic",
+    "authProperties":"{}",
+    "argument":"{}",
+    "notifyTopic": "demo"
+}
+### get list
+GET {{api}}/biz/job/list
+Authorization: Basic admin 123456
+
+### run one
+GET {{api}}/biz/job/execute?code={{code}}
+Authorization: Basic admin 123456
+
+### pause
+GET {{api}}/biz/job/pause?code={{code}}
+Authorization: Basic admin 123456
+
+### get task list
+GET {{api}}/biz/job/tasks?code={{code}}
+Authorization: Basic admin 123456
