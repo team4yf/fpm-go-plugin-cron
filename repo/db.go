@@ -24,6 +24,10 @@ func (r *dbJobRepo) Tasks(code string, skip, limit int) ([]*model.Task, int, err
 	list := make([]*model.Task, 0)
 	q := db.NewQuery()
 	q.SetTable(model.Task{}.TableName())
+	q.AddSorter(db.Sorter{
+		Sortby: "start_at",
+		Asc:    "desc",
+	})
 	var total int64
 	err := r.dbclient.FindAndCount(q, &list, &total)
 	return list, (int)(total), err

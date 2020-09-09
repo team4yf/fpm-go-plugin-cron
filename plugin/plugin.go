@@ -13,8 +13,8 @@ type cronConfig struct {
 
 type codeReq struct {
 	Code  string
-	Skip  int `json:"skip,omitempty"`
-	Limit int `json:"limit,omitempty"`
+	Skip  float64 `json:"skip,omitempty"`
+	Limit float64 `json:"limit,omitempty"`
 }
 
 func init() {
@@ -82,7 +82,7 @@ func init() {
 						if err = param.Convert(&req); err != nil {
 							return
 						}
-						list, total, err := jobService.Tasks(req.Code, req.Skip, req.Limit)
+						list, total, err := jobService.Tasks(req.Code, int(req.Skip), int(req.Limit))
 						return map[string]interface{}{
 							"row":   list,
 							"total": total,
