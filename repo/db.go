@@ -24,6 +24,7 @@ func (r *dbJobRepo) Tasks(code string, skip, limit int) ([]*model.Task, int, err
 	list := make([]*model.Task, 0)
 	q := db.NewQuery()
 	q.SetTable(model.Task{}.TableName())
+	q.SetCondition("code = ?", code)
 	q.SetPager(&db.Pagination{
 		Skip:  skip,
 		Limit: limit,

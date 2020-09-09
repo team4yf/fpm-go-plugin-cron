@@ -12,7 +12,7 @@ type cronConfig struct {
 }
 
 type codeReq struct {
-	Code  string
+	Code  string  `json:"code"`
 	Skip  float64 `json:"skip,omitempty"`
 	Limit float64 `json:"limit,omitempty"`
 }
