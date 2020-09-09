@@ -1,6 +1,9 @@
 package plugin
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/team4yf/fpm-go-plugin-cron/job"
 	"github.com/team4yf/fpm-go-plugin-cron/model"
 	"github.com/team4yf/fpm-go-plugin-cron/repo"
@@ -9,12 +12,6 @@ import (
 
 type cronConfig struct {
 	Store string
-}
-
-type codeReq struct {
-	Code  string  `json:"code"`
-	Skip  float64 `json:"skip,omitempty"`
-	Limit float64 `json:"limit,omitempty"`
 }
 
 func init() {
@@ -52,37 +49,35 @@ func init() {
 						return
 					},
 					"execute": func(param *fpm.BizParam) (data interface{}, err error) {
-						var req codeReq
-						if err = param.Convert(&req); err != nil {
-							return
-						}
-						data, err = jobService.Execute(req.Code)
+						code := (*param)["code"].(string)
+						data, err = jobService.Execute(code)
 						return
 					},
 					"restart": func(param *fpm.BizParam) (data interface{}, err error) {
-						var req codeReq
-						if err = param.Convert(&req); err != nil {
-							return
-						}
-						err = jobService.Restart(req.Code)
+						code := (*param)["code"].(string)
+						err = jobService.Restart(code)
 						data = 1
 						return
 					},
 					"pause": func(param *fpm.BizParam) (data interface{}, err error) {
-						var req codeReq
-						if err = param.Convert(&req); err != nil {
-							return
-						}
-						err = jobService.Pause(req.Code)
+						code := (*param)["code"].(string)
+						err = jobService.Pause(code)
 						data = 1
 						return
 					},
 					"tasks": func(param *fpm.BizParam) (data interface{}, err error) {
-						var req codeReq
-						if err = param.Convert(&req); err != nil {
-							return
+						code := (*param)["code"].(string)
+						limitNum := -1
+						skipNum := 0
+						skip, ex := (*param)["skip"]
+						if ex {
+							skipNum, err = strconv.Atoi(fmt.Sprintf("%v", skip))
 						}
-						list, total, err := jobService.Tasks(req.Code, int(req.Skip), int(req.Limit))
+						limit, ex := (*param)["limit"]
+						if ex {
+							limitNum, err = strconv.Atoi(fmt.Sprintf("%v", limit))
+						}
+						list, total, err := jobService.Tasks(code, skipNum, limitNum)
 						return map[string]interface{}{
 							"row":   list,
 							"total": total,

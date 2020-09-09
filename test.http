@@ -39,9 +39,19 @@ GET {{api}}/biz/job/pause?code={{code}}
 Authorization: Basic admin 123456
 
 ### get task list
-GET {{api}}/biz/job/tasks?code={{code}}
+GET {{api}}/biz/job/tasks?code=health&skip=1&limit=2
 Authorization: Basic admin 123456
 
+### get task list
+POST {{api}}/biz/job/tasks
+Authorization: Basic admin 123456
+Content-Type: application/json
+
+{
+    "code": "health",
+    "skip": 0,
+    "limit": 2
+}
 
 
 ### execute once
