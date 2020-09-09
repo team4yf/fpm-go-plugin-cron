@@ -31,3 +31,26 @@ func TestJobService(t *testing.T) {
 	list, err := jobService.List()
 	fmt.Printf("list: %v, err: %v", list, err)
 }
+
+func TestJobService1(t *testing.T) {
+	fpmApp := fpm.New()
+	fpmApp.Init()
+
+	jobService := NewSimpleJobService(repo.NewRepo("memory"))
+	jobService.Init()
+	jobService.Start()
+	err := jobService.Add(&model.Job{
+		Cron:        "* * * * *",
+		Code:        "test",
+		ExecuteType: "GET",
+		Status:      1,
+		URL:         "http://localhost:9090/health",
+		Argument:    "{}",
+	})
+	fmt.Printf("err: %v", err)
+	data, err := jobService.Execute("test")
+	fmt.Printf("data: %v, err: %v", data, err)
+
+	list, err := jobService.List()
+	fmt.Printf("list: %v, err: %v", list, err)
+}

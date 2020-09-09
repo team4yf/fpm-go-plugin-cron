@@ -12,7 +12,9 @@ type cronConfig struct {
 }
 
 type codeReq struct {
-	Code string
+	Code  string
+	Skip  int `json:"skip,omitempty"`
+	Limit int `json:"limit,omitempty"`
 }
 
 func init() {
@@ -79,12 +81,14 @@ func init() {
 					if err = param.Convert(&req); err != nil {
 						return
 					}
-					data, err = jobService.Tasks(req.Code)
-
-					return
+					list, total, err := jobService.Tasks(req.Code, req.Skip, req.Limit)
+					return map[string]interface{}{
+						"row":   list,
+						"total": total,
+					}, err
 				},
 			})
-			fpmApp.Subscribe("#job/"+"demo", func(topic string, payload interface{}) {
+			fpmApp.Subscribe("#job/done", func(topic string, payload interface{}) {
 				fpmApp.Logger.Debugf("t %s, p %v", topic, payload)
 			})
 		},

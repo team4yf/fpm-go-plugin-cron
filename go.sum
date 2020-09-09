@@ -206,6 +206,8 @@ github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/team4yf/fpm-go-pkg v0.0.0-20200907232930-67704d580ed7 h1:Aj3aR0AJbtGMaaFopjtSD6etjFDDfOQKpa6kgI2Mg+g=
 github.com/team4yf/fpm-go-pkg v0.0.0-20200907232930-67704d580ed7/go.mod h1:XbqR6ji35BTcEgTean4+wXcImNniLBXv3Y6v4m289Lw=
+github.com/team4yf/fpm-go-pkg v0.0.0-20200909073124-b07e3902cbc9 h1:mhgpILQ5JGGb8GYLhndTujBHnHuB+5tWQRy8eifHTko=
+github.com/team4yf/fpm-go-pkg v0.0.0-20200909073124-b07e3902cbc9/go.mod h1:XbqR6ji35BTcEgTean4+wXcImNniLBXv3Y6v4m289Lw=
 github.com/team4yf/yf-fpm-server-go v0.2.4 h1:eGKDyDi9LJ4hU8xRxNERLHRVBwc5CGqN3vyTLzeRFk0=
 github.com/team4yf/yf-fpm-server-go v0.2.4/go.mod h1:BFK4o183ZtoJp0dBhLzGLU4c3lIk1iKvZWx8x3DNO70=
 github.com/tebeka/strftime v0.1.5/go.mod h1:29/OidkoWHdEKZqzyDLUyC+LmgDgdHo4WAFCDT7D/Ig=

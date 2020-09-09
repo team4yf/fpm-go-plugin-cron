@@ -36,7 +36,7 @@ type JobService interface {
 	Execute(code string) (interface{}, error)
 	Restart(code string) error
 	Pause(code string) error
-	Tasks(code string) ([]*model.Task, error)
+	Tasks(code string, skip, limit int) ([]*model.Task, int, error)
 	Shutdown() error
 }
 
@@ -65,7 +65,7 @@ func generateCallback(s *simpleJobService, theJob *model.Job) func() {
 	return func() {
 		go s.runJob(theJob, func(data interface{}, err error) {
 			if err != nil {
-				log.Errorf("Run Job: %+v, Error: %+v\n", theJob, err)
+				// log.Errorf("Run Job: %+v, Error: %+v\n", theJob, err)
 				return
 			}
 		})
@@ -103,8 +103,8 @@ func (s *simpleJobService) List() ([]*model.Job, error) {
 	return s.repo.List()
 }
 
-func (s *simpleJobService) Tasks(code string) ([]*model.Task, error) {
-	return s.repo.Tasks(code)
+func (s *simpleJobService) Tasks(code string, skip, limit int) ([]*model.Task, int, error) {
+	return s.repo.Tasks(code, skip, limit)
 }
 
 func (s *simpleJobService) Start() (err error) {
@@ -231,8 +231,8 @@ func (s *simpleJobService) runJob(job *model.Job, callback Callback) {
 
 	errno := 0
 	var body interface{}
-	switch job.ExecuteType {
-	case "INTERNAL":
+
+	if job.ExecuteType == "INTERNAL" {
 		param := fpm.BizParam{}
 		if err := utils.StringToStruct(job.Argument, &param); err != nil {
 			callback(nil, err)
@@ -245,12 +245,43 @@ func (s *simpleJobService) runJob(job *model.Job, callback Callback) {
 		} else {
 			body = rsp
 		}
+	} else {
+		var rsp utils.ResponseWrapper
+		var auth *utils.HTTPAuth
+		if job.Auth != "" {
+			//construct the auth data
+			authProp := job.AuthProperties
 
-	case "WEB":
-		//TODO: execute the job
-	default:
-		body = "unsupported type:" + job.ExecuteType
-		errno = -1
+			auth = &utils.HTTPAuth{
+				Type: utils.HTTPAuthType(job.Auth),
+			}
+			if authProp != "" && authProp != "{}" {
+				utils.StringToStruct(authProp, &auth.Data)
+			}
+		}
+
+		switch job.ExecuteType {
+		case "POST":
+			rsp = utils.PostJSONWithHeaderAndAuth(job.URL, []byte(job.Argument), job.Timeout, nil, auth)
+		case "GET":
+			rsp = utils.GetWithAuth(job.URL, job.Timeout, auth)
+		case "FORM":
+			rsp = utils.PostParamsWithHeaderAndAuth(job.URL, job.Argument, job.Timeout, nil, auth)
+
+		default:
+			body = "unsupported type:" + job.ExecuteType
+			errno = -1
+		}
+
+		if errno != -1 {
+			if rsp.StatusCode >= 200 && rsp.StatusCode <= 300 {
+				errno = 0
+				body = rsp.GetStringBody()
+			} else {
+				errno = -1
+				body = rsp.Err
+			}
+		}
 	}
 
 	if err := s.repo.FeedbackTask(task.ID, errno, body); err != nil {

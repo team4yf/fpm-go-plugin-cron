@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/team4yf/fpm-go-plugin-cron/model"
+	"github.com/team4yf/yf-fpm-server-go/fpm"
 )
 
 //JobRepo the repo about the job
@@ -16,9 +17,7 @@ type JobRepo interface {
 
 	CreateTask(*model.Job) (*model.Task, error)
 	FeedbackTask(taskid uint, errno int, data interface{}) error
-	Tasks(code string) ([]*model.Task, error)
-
-	GetSubscribers(topic string) ([]*model.Subscribe, error)
+	Tasks(code string, skip, limit int) ([]*model.Task, int, error)
 }
 
 type memoryJobRepo struct {
@@ -35,14 +34,16 @@ func (r *memoryJobRepo) List() ([]*model.Job, error) {
 	return list, nil
 }
 
-func (r *memoryJobRepo) Tasks(code string) ([]*model.Task, error) {
+func (r *memoryJobRepo) Tasks(code string, skip, limit int) ([]*model.Task, int, error) {
 	list := make([]*model.Task, 0)
 	for _, t := range r.tasks {
 		if t.Code == code {
 			list = append(list, t)
 		}
 	}
-	return list, nil
+	total := len(list)
+	list = list[skip : skip+limit]
+	return list, total, nil
 }
 
 func (r *memoryJobRepo) CreateJob(j *model.Job) (err error) {
@@ -80,10 +81,6 @@ func (r *memoryJobRepo) FeedbackTask(taskid uint, errno int, data interface{}) (
 	return
 }
 
-func (r *memoryJobRepo) GetSubscribers(topic string) ([]*model.Subscribe, error) {
-	return nil, nil
-}
-
 //NewRepo create a new job repo
 func NewRepo(store string) JobRepo {
 	switch store {
@@ -91,6 +88,23 @@ func NewRepo(store string) JobRepo {
 		return &memoryJobRepo{
 			jobs:  make(map[string]*model.Job),
 			tasks: make(map[uint]*model.Task),
+		}
+	case "disk":
+		return &diskJobRepo{
+			jobs:  make(map[string]*model.Job),
+			tasks: make(map[uint]*model.Task),
+		}
+	case "db":
+		dbclient, ok := fpm.Default().GetDatabase("pg")
+		if !ok {
+			panic(fmt.Errorf("database plugin should installed! but not found"))
+		}
+		migrator := model.Migration{
+			DS: dbclient,
+		}
+		migrator.Install()
+		return &dbJobRepo{
+			dbclient: dbclient,
 		}
 	}
 

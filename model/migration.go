@@ -11,7 +11,7 @@ type Migration struct {
 func (migration *Migration) Install() error {
 
 	tables := []interface{}{
-		&Job{}, &Task{}, &Subscribe{},
+		&Job{}, &Task{},
 	}
 	migration.DS.AutoMigrate(tables...)
 	return nil
