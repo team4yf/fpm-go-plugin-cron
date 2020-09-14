@@ -122,7 +122,7 @@ func (s *simpleJobService) Start() (err error) {
 			return err
 		}
 		wrapper.id = id
-		log.Infof("Start() Job: Code-> %v; Corn-> %v;\n", wrapper.job.Code, wrapper.job.Cron)
+		log.Infof("Start() Job: Code-> %v; Corn-> %v;", wrapper.job.Code, wrapper.job.Cron)
 	}
 	//startup
 	s.schedule.Start()
@@ -234,9 +234,11 @@ func (s *simpleJobService) runJob(job *model.Job, callback Callback) {
 
 	if job.ExecuteType == "INTERNAL" {
 		param := fpm.BizParam{}
-		if err := utils.StringToStruct(job.Argument, &param); err != nil {
-			callback(nil, err)
-			return
+		if job.Argument != "" {
+			if err := utils.StringToStruct(job.Argument, &param); err != nil {
+				callback(nil, err)
+				return
+			}
 		}
 		rsp, err := fpm.Default().Execute(job.URL, &param)
 		if err != nil {

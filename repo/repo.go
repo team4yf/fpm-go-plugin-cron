@@ -94,6 +94,19 @@ func NewRepo(store string) JobRepo {
 			jobs:  make(map[string]*model.Job),
 			tasks: make(map[uint]*model.Task),
 		}
+	case "config":
+		// read only
+		if !fpm.Default().HasConfig("jobs") {
+			panic("should insert [jobs] node in the config file")
+		}
+		jobs := make(map[string]*model.Job)
+		if err := fpm.Default().FetchConfig("jobs", &jobs); err != nil {
+			panic(fmt.Errorf("fetch [jobs] error: %v", err))
+		}
+		return &configJobRepo{
+			jobs:  jobs,
+			tasks: make(map[uint]*model.Task),
+		}
 	case "db":
 		dbclient, ok := fpm.Default().GetDatabase("pg")
 		if !ok {
