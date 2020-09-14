@@ -20,7 +20,7 @@ import _ "github.com/team4yf/fpm-go-plugin-cron/plugin"
 ### Config
 ```yaml
 cron:
-    store: memory    # memory is the default
+    store: memory    # memory is the default, support : config, db
 ```
 
 ### Topics
