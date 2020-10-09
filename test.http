@@ -1,6 +1,6 @@
 @api = http://localhost:9090
 
-@code = test
+@code = web
 
 @web = web
 
@@ -22,10 +22,14 @@ Content-Type: application/json
     "status": 1,
     "executeType": "INTERNAL",
     "auth":"basic",
-    "authProperties":"{}",
+    "authProperties":"{\"username\":\"admin\",\"password\":\"123456\"}",
     "argument":"{}",
     "notifyTopic": "demo"
 }
+
+### remove once
+GET {{api}}/biz/job/remove?code={{code}}
+Authorization: Basic admin 123456
 ### get list
 GET {{api}}/biz/job/list
 Authorization: Basic admin 123456
@@ -34,12 +38,16 @@ Authorization: Basic admin 123456
 GET {{api}}/biz/job/execute?code={{code}}
 Authorization: Basic admin 123456
 
+### get detail
+GET {{api}}/biz/job/get?code={{code}}
+Authorization: Basic admin 123456
+
 ### pause
 GET {{api}}/biz/job/pause?code={{code}}
 Authorization: Basic admin 123456
 
 ### get task list
-GET {{api}}/biz/job/tasks?code=health&skip=1&limit=2
+GET {{api}}/biz/job/tasks?code={{code}}&skip=1&limit=2
 Authorization: Basic admin 123456
 
 ### get task list
@@ -55,28 +63,14 @@ Content-Type: application/json
 
 
 ### execute once
-POST {{api}}/biz/job/add
+POST {{api}}/biz/job/update
 Authorization: Basic admin 123456
 Content-Type: application/json
 
 {
     "cron": "* * * * *",
-    "code": "{{web}}",
-    "retryMax": 5,
-    "name": "{{web}}",
-    "title":"{{web}}",
-    "remark": "{{web}}",
-    "url": "http://localhost:9090/health",
-    "timeout": 600,
-    "delay": 10,
     "status": 1,
-    "executeType": "GET",
-    "auth":"basic",
-    "authProperties":"{\"username\":\"admin\",\"password\":\"123456\"}",
-    "argument":"{}",
-    "notifyTopic": "health"
+    "code": "{{code}}",
+    "title":"{{code}}",
+    "remark": "{{code}} update!"
 }
-
-### run one
-GET {{api}}/biz/job/execute?code={{web}}
-Authorization: Basic admin 123456

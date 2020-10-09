@@ -103,6 +103,11 @@ func (s *simpleJobService) List() ([]*model.Job, error) {
 }
 
 func (s *simpleJobService) Tasks(code string, skip, limit int) ([]*model.Task, int, error) {
+	_, ok := s.handler[code]
+	if !ok {
+		//not exists
+		return nil, 0, errors.New("job:" + code + ", not exists")
+	}
 	return s.repo.Tasks(code, skip, limit)
 }
 
@@ -111,6 +116,7 @@ func (s *simpleJobService) Remove(code string) (err error) {
 	if err = s.Pause(code); err != nil {
 		return
 	}
+	delete(s.handler, code)
 	//Remove
 	return s.repo.RemoveJob(code)
 }

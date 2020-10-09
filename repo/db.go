@@ -46,10 +46,11 @@ func (r *dbJobRepo) CreateJob(j *model.Job) (err error) {
 
 func (r *dbJobRepo) Get(code string) (job *model.Job, err error) {
 	q := db.NewQuery()
-	q.SetTable(job.TableName())
+	q.SetTable(model.Job{}.TableName())
 	q.SetCondition("code = ?", code)
-	err = r.dbclient.First(q, &job)
-	return
+	j := model.Job{}
+	err = r.dbclient.First(q, &j)
+	return &j, err
 }
 
 func (r *dbJobRepo) RemoveJob(code string) error {
