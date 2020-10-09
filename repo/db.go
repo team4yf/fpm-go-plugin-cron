@@ -44,6 +44,42 @@ func (r *dbJobRepo) CreateJob(j *model.Job) (err error) {
 	return r.dbclient.Create(q.BaseData, j)
 }
 
+func (r *dbJobRepo) Get(code string) (job *model.Job, err error) {
+	q := db.NewQuery()
+	q.SetTable(job.TableName())
+	q.SetCondition("code = ?", code)
+	err = r.dbclient.First(q, &job)
+	return
+}
+
+func (r *dbJobRepo) RemoveJob(code string) error {
+	q := db.NewQuery()
+	q.SetTable(model.Job{}.TableName())
+	q.SetCondition("code = ?", code)
+	var total int64
+	return r.dbclient.Remove(q.BaseData, &total)
+
+}
+func (r *dbJobRepo) UpdateJob(j *model.Job) error {
+	q := db.NewQuery()
+	q.SetTable(j.TableName())
+	q.SetCondition("code = ?", j.Code)
+	var total int64
+	commomMap := db.CommonMap{
+		"status": j.Status,
+	}
+	if j.Cron != "" {
+		commomMap["cron"] = j.Cron
+	}
+	if j.Title != "" {
+		commomMap["title"] = j.Title
+	}
+	if j.Remark != "" {
+		commomMap["remark"] = j.Remark
+	}
+	return r.dbclient.Updates(q.BaseData, commomMap, &total)
+}
+
 func (r *dbJobRepo) StartJob(code string) (err error) {
 	updates := db.CommonMap{
 		"status": 1,

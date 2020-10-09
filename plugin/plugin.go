@@ -45,7 +45,14 @@ func init() {
 							return
 						}
 						err = jobService.Add(&req)
-						data = 1
+						return
+					},
+					"update": func(param *fpm.BizParam) (data interface{}, err error) {
+						var req model.Job
+						if err = param.Convert(&req); err != nil {
+							return
+						}
+						err = jobService.Update(&req)
 						return
 					},
 					"execute": func(param *fpm.BizParam) (data interface{}, err error) {
@@ -56,13 +63,21 @@ func init() {
 					"restart": func(param *fpm.BizParam) (data interface{}, err error) {
 						code := (*param)["code"].(string)
 						err = jobService.Restart(code)
-						data = 1
+						return
+					},
+					"get": func(param *fpm.BizParam) (data interface{}, err error) {
+						code := (*param)["code"].(string)
+						data, err = jobService.Get(code)
 						return
 					},
 					"pause": func(param *fpm.BizParam) (data interface{}, err error) {
 						code := (*param)["code"].(string)
 						err = jobService.Pause(code)
-						data = 1
+						return
+					},
+					"remove": func(param *fpm.BizParam) (data interface{}, err error) {
+						code := (*param)["code"].(string)
+						err = jobService.Remove(code)
 						return
 					},
 					"tasks": func(param *fpm.BizParam) (data interface{}, err error) {
@@ -85,10 +100,6 @@ func init() {
 					},
 				})
 			}, 1)
-
-			// fpmApp.Subscribe("#job/done", func(topic string, payload interface{}) {
-			// 	fpmApp.Logger.Debugf("t %s, p %v", topic, payload)
-			// })
 		},
 	})
 }

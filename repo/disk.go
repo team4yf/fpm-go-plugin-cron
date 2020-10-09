@@ -33,6 +33,19 @@ func (r *diskJobRepo) Tasks(code string, skip, limit int) ([]*model.Task, int, e
 	return list, total, nil
 }
 
+func (r *diskJobRepo) Get(code string) (*model.Job, error) {
+	return r.jobs[code], nil
+}
+
+func (r *diskJobRepo) RemoveJob(code string) error {
+	delete(r.jobs, code)
+	return nil
+}
+func (r *diskJobRepo) UpdateJob(j *model.Job) error {
+	r.jobs[j.Code] = j
+	return nil
+}
+
 func (r *diskJobRepo) CreateJob(j *model.Job) (err error) {
 	r.jobs[j.Code] = j
 	return

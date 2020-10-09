@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	errNotInited     = errors.New("Schedule Not Inited!")
-	errJobCodeExists = errors.New("Job Code Exists!")
-	errJobNotExists  = errors.New("Job Not Exists!")
+	errNotInited     = errors.New("Schedule Not Inited")
+	errJobCodeExists = errors.New("Job Code Exists")
+	errJobNotExists  = errors.New("Job Not Exists")
 	inited           = false //the flag of the service.Init()
 )
 
@@ -33,9 +33,12 @@ type JobService interface {
 	List() ([]*model.Job, error)
 	Start() error
 	Add(job *model.Job) error
+	Get(code string) (*model.Job, error)
+	Update(job *model.Job) error
 	Execute(code string) (interface{}, error)
 	Restart(code string) error
 	Pause(code string) error
+	Remove(code string) error
 	Tasks(code string, skip, limit int) ([]*model.Task, int, error)
 	Shutdown() error
 }
@@ -85,10 +88,6 @@ func (s *simpleJobService) Init() (err error) {
 	s.locker.RLock()
 	defer s.locker.RUnlock()
 	for _, j := range list {
-		//define a callback
-		//Important: 这里出现了闭包的问题
-
-		//wrap the data and the callback
 		s.handler[j.Code] = &jobWrapper{
 			job: j,
 			f:   generateCallback(s, j),
@@ -105,6 +104,53 @@ func (s *simpleJobService) List() ([]*model.Job, error) {
 
 func (s *simpleJobService) Tasks(code string, skip, limit int) ([]*model.Task, int, error) {
 	return s.repo.Tasks(code, skip, limit)
+}
+
+func (s *simpleJobService) Remove(code string) (err error) {
+	//Stop
+	if err = s.Pause(code); err != nil {
+		return
+	}
+	//Remove
+	return s.repo.RemoveJob(code)
+}
+
+func (s *simpleJobService) Get(code string) (*model.Job, error) {
+	wrapper, ok := s.handler[code]
+	if !ok {
+		//not exists
+		return nil, errors.New("job:" + code + ", not exists")
+	}
+	return wrapper.job, nil
+}
+
+func (s *simpleJobService) Update(job *model.Job) (err error) {
+	if err = s.Pause(job.Code); err != nil {
+		return
+	}
+	//update the job
+	if err = s.repo.UpdateJob(job); err != nil {
+		return
+	}
+	if job, err = s.repo.Get(job.Code); err != nil {
+		return
+	}
+	//add the func
+	wrapper := &jobWrapper{
+		job: job,
+		f:   generateCallback(s, job),
+	}
+	//AutoRun
+	if wrapper.job.Status == 1 {
+		id, err := s.schedule.AddFunc(wrapper.job.Cron, wrapper.f)
+		if err != nil {
+			return err
+		}
+		wrapper.id = id
+	}
+
+	s.handler[job.Code] = wrapper
+	return nil
 }
 
 func (s *simpleJobService) Start() (err error) {

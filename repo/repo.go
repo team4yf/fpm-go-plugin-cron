@@ -14,6 +14,9 @@ type JobRepo interface {
 	CreateJob(*model.Job) error
 	StartJob(code string) error
 	PauseJob(code string) error
+	RemoveJob(code string) error
+	UpdateJob(*model.Job) error
+	Get(code string) (*model.Job, error)
 
 	CreateTask(*model.Job) (*model.Task, error)
 	FeedbackTask(taskid uint, errno int, data interface{}) error
@@ -49,6 +52,19 @@ func (r *memoryJobRepo) Tasks(code string, skip, limit int) ([]*model.Task, int,
 func (r *memoryJobRepo) CreateJob(j *model.Job) (err error) {
 	r.jobs[j.Code] = j
 	return
+}
+
+func (r *memoryJobRepo) Get(code string) (*model.Job, error) {
+	return r.jobs[code], nil
+}
+
+func (r *memoryJobRepo) RemoveJob(code string) error {
+	delete(r.jobs, code)
+	return nil
+}
+func (r *memoryJobRepo) UpdateJob(j *model.Job) error {
+	r.jobs[j.Code] = j
+	return nil
 }
 
 func (r *memoryJobRepo) StartJob(code string) (err error) {

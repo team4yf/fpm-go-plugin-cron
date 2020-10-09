@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
-const TimeFormatter = "2006-01-02 15:04:05"
+const timeFormatter = "2006-01-02 15:04:05"
 
 //Task task detail
 type Task struct {
@@ -39,9 +39,9 @@ func (t *Task) String(headers []string) []string {
 		case "log":
 			values = append(values, t.Log)
 		case "startat":
-			values = append(values, t.StartAt.Format(TimeFormatter))
+			values = append(values, t.StartAt.Format(timeFormatter))
 		case "endat":
-			values = append(values, t.EndAt.Format(TimeFormatter))
+			values = append(values, t.EndAt.Format(timeFormatter))
 		case "status":
 			values = append(values, strconv.FormatInt((int64)(t.Status), 10))
 		case "cost":

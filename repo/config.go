@@ -42,6 +42,19 @@ func (r *configJobRepo) CreateJob(j *model.Job) (err error) {
 	return fmt.Errorf("CreateJob cant support the config Job Type")
 }
 
+func (r *configJobRepo) Get(code string) (*model.Job, error) {
+	return r.jobs[code], nil
+}
+
+func (r *configJobRepo) RemoveJob(code string) error {
+	delete(r.jobs, code)
+	return nil
+}
+func (r *configJobRepo) UpdateJob(j *model.Job) error {
+	r.jobs[j.Code] = j
+	return nil
+}
+
 func (r *configJobRepo) StartJob(code string) (err error) {
 	r.jobs[code].Status = 1
 	return
