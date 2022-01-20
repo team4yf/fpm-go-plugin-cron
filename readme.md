@@ -12,7 +12,7 @@ the WEB can send a http request.
 `$ go get -u github.com/team4yf/fpm-go-plugin-cron`
 
 
-import: 
+import:
 ```golang
 import _ "github.com/team4yf/fpm-go-plugin-cron/plugin"
 ```
@@ -23,6 +23,22 @@ cron:
     store: memory    # memory is the default, support : config, db
 ```
 
+### Config via yml
+```yaml
+cron:
+  store: config
+
+jobs:
+  test:
+    name: "test"
+    code: "test"
+    cron: "* * * * *"
+    status: 1
+    executeType: "INTERNAL"
+    url: "foo.bar"
+    timeout: 600
+    retryMax: 2
+    notifyTopic: "test"
 ### Topics
 
 - #job/done, and payload is

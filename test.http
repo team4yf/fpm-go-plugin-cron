@@ -1,6 +1,6 @@
 @api = http://localhost:9090
 
-@code = web
+@code = daily_report
 
 @web = web
 
@@ -56,7 +56,7 @@ Authorization: Basic admin 123456
 Content-Type: application/json
 
 {
-    "code": "test",
+    "code": "{{code}}",
     "skip": 0,
     "limit": 2
 }

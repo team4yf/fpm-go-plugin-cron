@@ -292,7 +292,7 @@ func (s *simpleJobService) runJob(job *model.Job, callback Callback) {
 				return
 			}
 		}
-		rsp, err := fpm.Default().Execute(job.URL, &param)
+		rsp, err := fpm.Default().Execute(job.URL, &param, nil)
 		if err != nil {
 			errno = -1
 			body = err.Error()
